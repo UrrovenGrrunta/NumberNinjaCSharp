@@ -55,6 +55,11 @@ public class EasyGenerator
         }
         return new Question(equation, answers, correctAnswer);
     }
+    private (string equation, int result) GenerateEquation()
+    {
+        // Тут тело
+        return (equation, result);
+    }
 }
 
 // 
