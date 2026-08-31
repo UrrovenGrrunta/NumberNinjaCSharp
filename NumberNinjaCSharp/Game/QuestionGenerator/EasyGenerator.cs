@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 public class EasyGenerator
 {
@@ -9,8 +10,7 @@ public class EasyGenerator
         string equation = "";
         int[] answers = new int[4];
         int correctAnswer = 0;
-
-        string operation = _random.GetString("+-", 1);
+        int innerResult = 0;
         
         int a = _random.Next(1, 41),
             b = _random.Next(1, 41),
@@ -18,16 +18,46 @@ public class EasyGenerator
 
         int questionForm = Convert.ToInt16(_random.GetString("01", 1));
         // Form 0 --  a ± (b ± c)
-        // Form 1 (a ± b) ± c
-        char optionTwo = Convert.ToChar(_random.GetString("+-", 1));
+        // Form 1 -- (a ± b) ± c
         char optionOne = Convert.ToChar(_random.GetString("+-", 1));
-        
+        char optionTwo = Convert.ToChar(_random.GetString("+-", 1));
+        if (questionForm == 1)
+        {
+            innerResult = optionOne switch
+            {
+                '+' => a + b,
+                '-' => a - b,
+                _ => 0
+            };
+            correctAnswer = optionTwo switch
+            {
+                '+' => innerResult + c,
+                '-' => innerResult - c,
+                _ => 0
+            };
+            equation = $"({a}{optionOne}{b}){optionTwo}{c}= ";
+        }
+        if (questionForm == 0)
+        {
+            innerResult = optionTwo switch
+            {
+                '+' => b + c,
+                '-' => b - c,
+                _ => 0
+            };
+            correctAnswer = optionOne switch
+            {
+                '+' => a + innerResult,
+                '-' => a - innerResult,
+                _ =>  0
+            };
+            equation = $"{a}{optionOne}({b}{optionTwo}{c})= ";
+        }
         return new Question(equation, answers, correctAnswer);
     }
-
 }
 
-
+// 
 
 /*
 By some miracle this code needs to be ressolved using C#
