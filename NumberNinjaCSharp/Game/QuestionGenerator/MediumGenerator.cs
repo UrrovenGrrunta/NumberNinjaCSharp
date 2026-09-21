@@ -77,10 +77,16 @@ public class MediumGenerator
                 index++;
             }
         }
+
         if (operation == "*")
-            {equation = $"{aMult}{operation}{bMult}= ";}
+        {
+            equation = $"{aMult}{operation}{bMult}= ";
+        }
         else
-            {equation = $"{a}{operation}{b}= ";}
+        {
+            equation = $"{a}{operation}{b}= ";
+        }
+
         _random.Shuffle(answers);
 
         return new Question(equation, answers, result);
