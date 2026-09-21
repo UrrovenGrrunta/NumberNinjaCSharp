@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Drawing;
 
 namespace NumberNinjaCSharp;
 
@@ -11,16 +12,7 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        var veryEasy = new VeryEasyGenerator();
-        var q = veryEasy.GenerateQuestion();
-
-        Console.WriteLine($"Equation: {q.Equation}");
-        Console.WriteLine($"Correct answer: {q.CorrectAnswer}");
-
-        foreach (var answer in q.Answers)
-        {
-            Console.WriteLine($"Answer: {answer}");
-        }
+        Tests.Run();
 
 
 

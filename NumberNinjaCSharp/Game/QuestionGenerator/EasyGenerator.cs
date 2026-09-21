@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.CompilerServices;
+
 
 public class EasyGenerator
 {
@@ -7,10 +7,43 @@ public class EasyGenerator
 
     public Question GenerateQuestion()
     {
-        string equation = "";
+        var (equation, result) = GenerateEquation();
         int[] answers = new int[4];
-        int correctAnswer = 0;
+        while (result < 0)
+        {
+            (equation, result) = GenerateEquation();
+        }
+        int index = 1;
+        answers[0] = result;
+
+        while (index < 4)
+        {
+            int fake = result + _random.Next(-10, 11);
+            bool isDuplicate = false;
+
+            for (int i = 0; i < index; i++)
+            {
+                if (fake == answers[i])
+                {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (fake >= 0 && !isDuplicate)
+            {
+                answers[index] = fake;
+                index++;
+            }
+        }
+        _random.Shuffle(answers);
+        return new Question(equation, answers, result);
+    }
+    private (string equation, int result) GenerateEquation()
+    {
+        string equation = "";
         int innerResult = 0;
+        int result = 0;
         
         int a = _random.Next(1, 41),
             b = _random.Next(1, 41),
@@ -29,7 +62,7 @@ public class EasyGenerator
                 '-' => a - b,
                 _ => 0
             };
-            correctAnswer = optionTwo switch
+            result = optionTwo switch
             {
                 '+' => innerResult + c,
                 '-' => innerResult - c,
@@ -45,7 +78,7 @@ public class EasyGenerator
                 '-' => b - c,
                 _ => 0
             };
-            correctAnswer = optionOne switch
+            result = optionOne switch
             {
                 '+' => a + innerResult,
                 '-' => a - innerResult,
@@ -53,59 +86,6 @@ public class EasyGenerator
             };
             equation = $"{a}{optionOne}({b}{optionTwo}{c})= ";
         }
-        return new Question(equation, answers, correctAnswer);
-    }
-    private (string equation, int result) GenerateEquation()
-    {
-        // Тут тело
         return (equation, result);
     }
 }
-
-// 
-
-/*
-By some miracle this code needs to be ressolved using C#
-
-class AdditionSubtractionWithBrackets: ## Easy diff
-    def __init__(self):
-        pass
-
-    def generateQuestion(self):
-        # Generate three numbers in range 1-40
-        a, b, c = [rint(1, 40) for _ in range(3)]
-
-        form = rchoice([0, 1])
-
-
-        if form == 0:
-            # a ± (b ± c)
-            op1 = rchoice(["+", "-"])
-            op2 = rchoice(["+", "-"])
-            equation = f"{a}{op1}({b}{op2}{c})"
-            result = eval(equation)
-        else:
-            # (a ± b) ± c
-            op1 = rchoice(["+", "-"])
-            op2 = rchoice(["+", "-"])
-            equation = f"({a}{op1}{b}){op2}{c}"
-            result = eval(equation)
-
-
-        # Ensure non-negative result
-        if result < 0:
-            return self.generateQuestion()
-
-
-        # Generate answers set including the correct one
-        answers = {result}
-        while len(answers) < 4:
-            fake = result + rint(-10, 10)
-            if fake >= 0:
-                answers.add(fake)
-        answer_list = list(answers)
-        rshuffle(answer_list)
-
-        return f"{equation} = ", answer_list, result
-
-*/
