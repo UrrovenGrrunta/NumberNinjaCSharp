@@ -1,8 +1,6 @@
 using System;
-using System.Runtime.Serialization;
-using System.Security.Authentication.ExtendedProtection;
-using System.Security.Cryptography;
-using Avalonia.Controls.Converters;
+using System.Threading;
+
 
 public static class Tests
 {
@@ -10,8 +8,12 @@ public static class Tests
     {
         var veryEasy = new VeryEasyGenerator();
         var easy = new EasyGenerator();
+        var medium = new MediumGenerator();
+        var hard = new HardGenerator();
+        var challenge = new ChallengeGenerator();
+
         int errors = 0;
-        Console.WriteLine("=== Very easy ===");
+        // === Very easy ===
         for (int i =0; i<1000; i++)
         {
             if (!ValidateQuestion(veryEasy.GenerateQuestion()))
@@ -19,7 +21,7 @@ public static class Tests
                 errors++;
             }
         }
-        Console.WriteLine("=== Easy ===");
+        // === Easy ===
         for (int i =0; i<1000; i++)
         {
             if (!ValidateQuestion(easy.GenerateQuestion()))
@@ -27,15 +29,55 @@ public static class Tests
                 errors++;
             }
         }
+        // === Medium ===
+        for (int i =0; i<1000; i++)
+        {
+            if (!ValidateQuestion(medium.GenerateQuestion()))
+            {
+                errors++;
+            }
+        }
+        // === Hard ===
+        for (int i = 0; i<1000; i++)
+        {
+            if (!ValidateQuestion(hard.GenerateQuestion()))
+            {
+                errors++;
+            }
+        }
+        // === Challenge ===
+        for (int i = 0; i<1000; i++)
+        {
+            if (!ValidateQuestion(challenge.GenerateQuestion()))
+            {
+                errors++;
+            }
+        }
+
         Console.WriteLine($"Tests finished. Errors found: {errors}");
-
     }
+    public static void TestTimer()
+    {
+        var timer = new ChallengeTimer();
+        while (timer.TimeRemaining > 0)
+        {
+            Console.WriteLine(timer.TimeRemaining);
 
+            if (timer.TimeRemaining == 3)
+            {
+                Console.WriteLine("PENALTY");
+                timer.Penalize();
+            }
+
+            Thread.Sleep(1000);
+            timer.Tick();
+        }
+    }
     private static bool ValidateQuestion(Question q)
     {
         bool isValid = true;
         int errors = 0;
-        int dublicateCount = 0;
+        int duplicateCount = 0;
 
         if (q.CorrectAnswer < 0)
         {
@@ -80,8 +122,8 @@ public static class Tests
                 if (q.Answers[i] == q.Answers[j])
                 {
                     errors++;
-                    dublicateCount++;
-                    Console.WriteLine("ERROR: dublicateFound");
+                    duplicateCount++;
+                    Console.WriteLine("ERROR: duplicateFound");
                     Console.WriteLine(q.Answers);
                     Console.WriteLine(string.Join(", ", q.Answers));
                     Console.WriteLine($"Correct: {q.CorrectAnswer}");
@@ -100,7 +142,7 @@ public static class Tests
 
         if (errors > 0)
         {
-            Console.WriteLine($"Found {dublicateCount}, dublicates.");
+            Console.WriteLine($"Found {duplicateCount}, duplicates.");
             isValid = false;
         }
         return isValid;

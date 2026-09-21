@@ -1,13 +1,13 @@
 using System;
-using System.Data.Common;
 
-public class MediumGenerator
+
+public class HardGenerator
 {
     private readonly Random _random = new();
 
     public Question GenerateQuestion()
     {
-        string operation = _random.GetString("+-*", 1);
+        string operation = _random.GetString("+-*/", 1);
         string equation;
 
         int a = _random.Next(1, 41);
@@ -16,7 +16,10 @@ public class MediumGenerator
         int aMult = _random.Next(0,11);
         int bMult = _random.Next(0,11);
 
+        int aDiv = _random.Next(2, 11);
+        int bDiv = _random.Next(1,11);
 
+        int dividend = aDiv * bDiv;
         int result;
         int[] answers = new int[4];
 
@@ -34,6 +37,9 @@ public class MediumGenerator
                 break;
             case "*":
                 result = aMult * bMult;
+                break;
+            case "/":
+                result = dividend / bDiv;
                 break;
             default:
                 throw new InvalidOperationException("Unsupported operation, sry m8");
@@ -66,16 +72,20 @@ public class MediumGenerator
 
         if (operation == "*")
         {
-            equation = $"{aMult}{operation}{bMult}= ";
+            equation = $"{aMult}×{bMult}= ";
         }
-        else
+
+        else if (operation == "/")
+        {
+            equation = $"{dividend}÷{bDiv}= ";
+        }
+
+        else 
         {
             equation = $"{a}{operation}{b}= ";
         }
 
         _random.Shuffle(answers);
-
         return new Question(equation, answers, result);
     }
-
 }

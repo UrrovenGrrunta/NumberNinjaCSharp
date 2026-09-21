@@ -12,7 +12,6 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        Tests.Run();
 
 
 
