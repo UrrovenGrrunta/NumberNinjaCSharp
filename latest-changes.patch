@@ -1,0 +1,388 @@
+From 431e36c259f2dc0a45e34a8458858c9684fef379 Mon Sep 17 00:00:00 2001
+From: Timur <timbro2312@gmail.com>
+Date: Mon, 21 Sep 2026 23:12:42 +0100
+Subject: [PATCH] Stcructure update
+
+---
+ NumberNinjaCSharp/Game/ChallengeTimer.cs      | 33 +++++++
+ NumberNinjaCSharp/Game/GameController.cs      | 16 ++++
+ .../QuestionGenerator/ChallengeGenerator.cs   | 37 ++++++++
+ .../Game/QuestionGenerator/HardGenetaror.cs   | 91 +++++++++++++++++++
+ .../Game/QuestionGenerator/MediumGenerator.cs | 16 +---
+ NumberNinjaCSharp/Program.cs                  |  1 -
+ NumberNinjaCSharp/Tests/Tests.cs              | 64 ++++++++++---
+ 7 files changed, 231 insertions(+), 27 deletions(-)
+ create mode 100644 NumberNinjaCSharp/Game/ChallengeTimer.cs
+ create mode 100644 NumberNinjaCSharp/Game/GameController.cs
+ create mode 100644 NumberNinjaCSharp/Game/QuestionGenerator/ChallengeGenerator.cs
+ create mode 100644 NumberNinjaCSharp/Game/QuestionGenerator/HardGenetaror.cs
+
+diff --git a/NumberNinjaCSharp/Game/ChallengeTimer.cs b/NumberNinjaCSharp/Game/ChallengeTimer.cs
+new file mode 100644
+index 0000000..0c4f890
+--- /dev/null
++++ b/NumberNinjaCSharp/Game/ChallengeTimer.cs
+@@ -0,0 +1,33 @@
++using System;
++
++public class ChallengeTimer
++{
++    private const int StartTime = 300;
++    public int TimeRemaining {get; private set;} = StartTime;
++
++    public int Penalize()
++    {
++        if (TimeRemaining > 10)
++        {
++            TimeRemaining -= 10;
++        }
++        else
++        {
++            TimeRemaining = 0;
++        }
++        return TimeRemaining;
++    }
++    public int Tick()
++    {
++        if (TimeRemaining > 0)
++        {
++            TimeRemaining--;
++        }
++        return TimeRemaining;
++    }
++    public int Reset()
++    {
++        TimeRemaining = StartTime;
++        return TimeRemaining; 
++    }
++}
+\ No newline at end of file
+diff --git a/NumberNinjaCSharp/Game/GameController.cs b/NumberNinjaCSharp/Game/GameController.cs
+new file mode 100644
+index 0000000..733fe2f
+--- /dev/null
++++ b/NumberNinjaCSharp/Game/GameController.cs
+@@ -0,0 +1,16 @@
++using System;
++
++public class GameController
++{
++    private Difficulty _currentDifficulty;
++
++    public Difficulty GetDifficulty()
++    {
++        return _currentDifficulty;
++    }
++
++    public void SetDifficulty(Difficulty difficulty)
++    {
++        _currentDifficulty = difficulty;
++    }
++}
+\ No newline at end of file
+diff --git a/NumberNinjaCSharp/Game/QuestionGenerator/ChallengeGenerator.cs b/NumberNinjaCSharp/Game/QuestionGenerator/ChallengeGenerator.cs
+new file mode 100644
+index 0000000..f07e5e1
+--- /dev/null
++++ b/NumberNinjaCSharp/Game/QuestionGenerator/ChallengeGenerator.cs
+@@ -0,0 +1,37 @@
++using System;
++using System.Reflection.Metadata;
++
++public class ChallengeGenerator
++{
++    private readonly Random _random = new();
++    
++    public Question GenerateQuestion()
++    {
++        var veryEasy = new VeryEasyGenerator();
++        var easy = new EasyGenerator();
++        var medium = new MediumGenerator();
++        var hard = new HardGenerator();
++
++
++        int mode = _random.Next(0,4);
++
++        switch (mode)
++        {
++            case 0:
++                return veryEasy.GenerateQuestion();
++                
++            case 1:
++                return easy.GenerateQuestion();
++                
++            case 2:
++                return medium.GenerateQuestion();
++                
++            case 3:
++                return hard.GenerateQuestion();
++                
++            default:
++                throw new InvalidOperationException("Invalid challenge mode");
++            }
++
++    } 
++}
+\ No newline at end of file
+diff --git a/NumberNinjaCSharp/Game/QuestionGenerator/HardGenetaror.cs b/NumberNinjaCSharp/Game/QuestionGenerator/HardGenetaror.cs
+new file mode 100644
+index 0000000..c936391
+--- /dev/null
++++ b/NumberNinjaCSharp/Game/QuestionGenerator/HardGenetaror.cs
+@@ -0,0 +1,91 @@
++using System;
++
++
++public class HardGenerator
++{
++    private readonly Random _random = new();
++
++    public Question GenerateQuestion()
++    {
++        string operation = _random.GetString("+-*/", 1);
++        string equation;
++
++        int a = _random.Next(1, 41);
++        int b = _random.Next(1, 41);
++
++        int aMult = _random.Next(0,11);
++        int bMult = _random.Next(0,11);
++
++        int aDiv = _random.Next(2, 11);
++        int bDiv = _random.Next(1,11);
++
++        int dividend = aDiv * bDiv;
++        int result;
++        int[] answers = new int[4];
++
++        switch (operation)
++        {
++            case "+":
++                result = a + b;
++                break;
++            case "-":
++                if (a < b)
++                {
++                    b = _random.Next(1, a + 1);
++                }
++                result = a - b;
++                break;
++            case "*":
++                result = aMult * bMult;
++                break;
++            case "/":
++                result = dividend / bDiv;
++                break;
++            default:
++                throw new InvalidOperationException("Unsupported operation, sry m8");
++        }
++
++        answers[0] = result;
++
++        int index = 1;
++
++        while (index < 4)
++        {
++            int fake = result + _random.Next(-10, 11);
++            bool isDuplicate = false;
++
++            for (int i = 0; i < index; i++)
++            {
++                if (fake == answers[i])
++                {
++                    isDuplicate = true;
++                    break;
++                }
++            }
++
++            if (fake >= 0 && !isDuplicate)
++            {
++                answers[index] = fake;
++                index++;
++            }
++        }
++
++        if (operation == "*")
++        {
++            equation = $"{aMult}×{bMult}= ";
++        }
++
++        else if (operation == "/")
++        {
++            equation = $"{dividend}÷{bDiv}= ";
++        }
++
++        else 
++        {
++            equation = $"{a}{operation}{b}= ";
++        }
++
++        _random.Shuffle(answers);
++        return new Question(equation, answers, result);
++    }
++}
+diff --git a/NumberNinjaCSharp/Game/QuestionGenerator/MediumGenerator.cs b/NumberNinjaCSharp/Game/QuestionGenerator/MediumGenerator.cs
+index 69d23fb..76f7be4 100644
+--- a/NumberNinjaCSharp/Game/QuestionGenerator/MediumGenerator.cs
++++ b/NumberNinjaCSharp/Game/QuestionGenerator/MediumGenerator.cs
+@@ -20,19 +20,6 @@ public class MediumGenerator
+         int result;
+         int[] answers = new int[4];
+ 
+-/*         if (operation == "+")
+-        {
+-            result = a + b;
+-        }
+-        else
+-        {
+-            if (a < b)
+-            {
+-                b = _random.Next(1, a + 1);
+-            }
+-
+-            result = a - b;
+-        } */
+         switch (operation)
+         {
+             case "+":
+@@ -49,8 +36,7 @@ public class MediumGenerator
+                 result = aMult * bMult;
+                 break;
+             default:
+-                Console.WriteLine("Unsuppprted operation, sry m8");
+-                break;
++                throw new InvalidOperationException("Unsupported operation, sry m8");
+         }
+ 
+         answers[0] = result;
+diff --git a/NumberNinjaCSharp/Program.cs b/NumberNinjaCSharp/Program.cs
+index 6e88025..9b2171a 100644
+--- a/NumberNinjaCSharp/Program.cs
++++ b/NumberNinjaCSharp/Program.cs
+@@ -12,7 +12,6 @@ class Program
+     [STAThread]
+     public static void Main(string[] args)
+     {
+-        Tests.Run();
+ 
+ 
+ 
+diff --git a/NumberNinjaCSharp/Tests/Tests.cs b/NumberNinjaCSharp/Tests/Tests.cs
+index 6253882..e731cd7 100644
+--- a/NumberNinjaCSharp/Tests/Tests.cs
++++ b/NumberNinjaCSharp/Tests/Tests.cs
+@@ -1,8 +1,6 @@
+ using System;
+-using System.Runtime.Serialization;
+-using System.Security.Authentication.ExtendedProtection;
+-using System.Security.Cryptography;
+-using Avalonia.Controls.Converters;
++using System.Threading;
++
+ 
+ public static class Tests
+ {
+@@ -10,8 +8,12 @@ public static class Tests
+     {
+         var veryEasy = new VeryEasyGenerator();
+         var easy = new EasyGenerator();
++        var medium = new MediumGenerator();
++        var hard = new HardGenerator();
++        var challenge = new ChallengeGenerator();
++
+         int errors = 0;
+-        Console.WriteLine("=== Very easy ===");
++        // === Very easy ===
+         for (int i =0; i<1000; i++)
+         {
+             if (!ValidateQuestion(veryEasy.GenerateQuestion()))
+@@ -19,7 +21,7 @@ public static class Tests
+                 errors++;
+             }
+         }
+-        Console.WriteLine("=== Easy ===");
++        // === Easy ===
+         for (int i =0; i<1000; i++)
+         {
+             if (!ValidateQuestion(easy.GenerateQuestion()))
+@@ -27,15 +29,55 @@ public static class Tests
+                 errors++;
+             }
+         }
+-        Console.WriteLine($"Tests finished. Errors found: {errors}");
++        // === Medium ===
++        for (int i =0; i<1000; i++)
++        {
++            if (!ValidateQuestion(medium.GenerateQuestion()))
++            {
++                errors++;
++            }
++        }
++        // === Hard ===
++        for (int i = 0; i<1000; i++)
++        {
++            if (!ValidateQuestion(hard.GenerateQuestion()))
++            {
++                errors++;
++            }
++        }
++        // === Challenge ===
++        for (int i = 0; i<1000; i++)
++        {
++            if (!ValidateQuestion(challenge.GenerateQuestion()))
++            {
++                errors++;
++            }
++        }
+ 
++        Console.WriteLine($"Tests finished. Errors found: {errors}");
+     }
++    public static void TestTimer()
++    {
++        var timer = new ChallengeTimer();
++        while (timer.TimeRemaining > 0)
++        {
++            Console.WriteLine(timer.TimeRemaining);
++
++            if (timer.TimeRemaining == 3)
++            {
++                Console.WriteLine("PENALTY");
++                timer.Penalize();
++            }
+ 
++            Thread.Sleep(1000);
++            timer.Tick();
++        }
++    }
+     private static bool ValidateQuestion(Question q)
+     {
+         bool isValid = true;
+         int errors = 0;
+-        int dublicateCount = 0;
++        int duplicateCount = 0;
+ 
+         if (q.CorrectAnswer < 0)
+         {
+@@ -80,8 +122,8 @@ public static class Tests
+                 if (q.Answers[i] == q.Answers[j])
+                 {
+                     errors++;
+-                    dublicateCount++;
+-                    Console.WriteLine("ERROR: dublicateFound");
++                    duplicateCount++;
++                    Console.WriteLine("ERROR: duplicateFound");
+                     Console.WriteLine(q.Answers);
+                     Console.WriteLine(string.Join(", ", q.Answers));
+                     Console.WriteLine($"Correct: {q.CorrectAnswer}");
+@@ -100,7 +142,7 @@ public static class Tests
+ 
+         if (errors > 0)
+         {
+-            Console.WriteLine($"Found {dublicateCount}, dublicates.");
++            Console.WriteLine($"Found {duplicateCount}, duplicates.");
+             isValid = false;
+         }
+         return isValid;
+-- 
+2.43.0
+
