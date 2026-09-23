@@ -1,5 +1,4 @@
 using System;
-using System.Reflection.Metadata;
 
 public class ChallengeGenerator
 {
@@ -9,7 +8,7 @@ public class ChallengeGenerator
     {
         var veryEasy = new VeryEasyGenerator();
         var easy = new EasyGenerator();
-        var medium = new MediumGenerator();
+        var normal = new NormalGenerator();
         var hard = new HardGenerator();
 
 
@@ -24,7 +23,7 @@ public class ChallengeGenerator
                 return easy.GenerateQuestion();
                 
             case 2:
-                return medium.GenerateQuestion();
+                return normal.GenerateQuestion();
                 
             case 3:
                 return hard.GenerateQuestion();

@@ -1,6 +1,6 @@
 using System;
 
-public class MediumGenerator
+public class NormalGenerator
 {
     private readonly Random _random = new();
 
