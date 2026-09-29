@@ -1,5 +1,7 @@
 # NumberNinja C#
 
+**Project status: Active (College)**
+
 C# rewrite of **NumberNinja**, a small maths training game originally written in Python with Kivy.
 
 The goal of this version is to rebuild the project with a cleaner C# architecture while keeping the original gameplay and features.
