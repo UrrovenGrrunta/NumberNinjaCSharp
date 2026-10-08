@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-
+using System.Linq;
 
 public static class Tests
 {
@@ -8,7 +8,7 @@ public static class Tests
     {
         var veryEasy = new VeryEasyGenerator();
         var easy = new EasyGenerator();
-        var medium = new MediumGenerator();
+        var medium = new NormalGenerator();
         var hard = new HardGenerator();
         var challenge = new ChallengeGenerator();
 

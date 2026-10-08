@@ -1,19 +1,18 @@
-using Microsoft.VisualBasic;
 using System;
+using System.Net.Quic;
+using System.Reflection.Metadata;
 
 public class GameController
 {
-    private Difficulty _currentDifficulty;
-    private GameState _currentState = GameState.Menu;
-    private Question? _currentQuestion;
-    private bool _isAnswerCorrect;
     private int _score = 0;
     private int _streak = 1;
     private int _counter = 0;
-
-
-
-
+    private bool _isAnswerCorrect;
+    private Question? _currentQuestion;
+    private Difficulty _currentDifficulty;
+    private readonly ChallengeTimer _timer = new();
+    private GameState _currentState = GameState.Menu;
+   
     public Difficulty GetDifficulty()
     {
         return _currentDifficulty;
@@ -35,7 +34,14 @@ public class GameController
         return _currentState;
     }
     public GameState StartGame()
+
     {
+        if (_currentDifficulty == Difficulty.Challenge)
+        {
+            ResetTimer();
+            ResetChalange();
+
+        }
         _currentState = GameState.Playing;
         return _currentState;
     }
@@ -83,17 +89,34 @@ public class GameController
 
     public bool SubmitAnswer(int userAnswer)
     {
-        _isAnswerCorrect = false;
-        if (_currentQuestion == null)
+        if (_currentState == GameState.Playing)
         {
-            throw new InvalidOperationException("_currentQuestion is null");
+            _isAnswerCorrect = false;
+            if (_currentQuestion == null)
+            {
+                throw new InvalidOperationException("_currentQuestion is null");
+            }
+            if (_currentQuestion.CorrectAnswer == userAnswer)
+            {
+                _isAnswerCorrect = true;
+            }
+            if (_currentDifficulty == Difficulty.Challenge)
+            {
+                UpdateChallengeScore();
+                if (!_isAnswerCorrect)
+                {
+                    EndChallenge();
+                }
+            }
+
+
+            GenerateQuestion();
         }
-        if (_currentQuestion.CorrectAnswer == userAnswer)
+        else
         {
-            _isAnswerCorrect = true;
+            throw new InvalidOperationException();
         }
-        GenerateQuestion();
-        return _isAnswerCorrect;
+            return _isAnswerCorrect;
     }
 
     // Challenge-specific logic
@@ -160,5 +183,9 @@ public class GameController
         _counter = 0;
         _isAnswerCorrect = false;
         return Tuple.Create(_score, _streak, _counter, _isAnswerCorrect);
+    }
+    public int ResetTimer()
+    {
+        return _timer.TimeRemaining;
     }
 }
