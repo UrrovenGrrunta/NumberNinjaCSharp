@@ -5,14 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="NumberNinjaCSharp.MainWindow"
         Title="NumberNinjaCSharp">
-
-    <StackPanel>
-        <TextBlock x:Name="QuestionTextBox" />
-        <Button x:Name="AnswerA" Content="1" Click="AnswerA_Click"/>
-        <Button x:Name="AnswerB" Content="2" Click="AnswerB_Click"/>
-        <Button x:Name="AnswerC" Content="3" Click="AnswerC_Click"/>
-        <Button x:Name="AnswerD" Content="4" Click="AnswerD_Click"/>
-        <TextBlock x:Name="Result" />
-    </StackPanel>
+	
+    <ContentControl x:Name="ScreenHost"></ContentControl>
 
 </Window>
