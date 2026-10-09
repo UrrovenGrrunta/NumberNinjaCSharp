@@ -7,14 +7,14 @@ using System.Net.Quic;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 
-namespace NumberNinjaCSharp;
+namespace NumberNinjaCSharp.Views;
 
-public partial class MainWindow : Window
+public partial class GameView : UserControl
 {
     private GameController _gameController = new();
     private bool _isCorrect;
 
-    public MainWindow()
+    public GameView()
     {
         InitializeComponent();
         _gameController.StartGame();
