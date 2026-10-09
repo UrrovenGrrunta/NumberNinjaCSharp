@@ -1,6 +1,7 @@
 using System;
 using System.Net.Quic;
 using System.Reflection.Metadata;
+using System.Runtime.Serialization;
 
 public class GameController
 {
@@ -33,17 +34,18 @@ public class GameController
         _currentState = GameState.DifficultySelection;
         return _currentState;
     }
-    public GameState StartGame()
+        public GameState StartGame()
 
-    {
-        if (_currentDifficulty == Difficulty.Challenge)
         {
-            ResetTimer();
-            ResetChalange();
+            GenerateQuestion();
+            if (_currentDifficulty == Difficulty.Challenge)
+            {
+                ResetTimer();
+                ResetChalange();
 
-        }
-        _currentState = GameState.Playing;
-        return _currentState;
+            }
+            _currentState = GameState.Playing;
+            return _currentState;
     }
     public GameState EndGame()
     {
@@ -105,7 +107,12 @@ public class GameController
                 UpdateChallengeScore();
                 if (!_isAnswerCorrect)
                 {
-                    EndChallenge();
+                    _timer.Penalize();
+                    if (_timer.TimeRemaining == 0)
+                    {
+                        EndChallenge();
+                        return _isAnswerCorrect;
+                    }
                 }
             }
 
@@ -116,7 +123,7 @@ public class GameController
         {
             throw new InvalidOperationException();
         }
-            return _isAnswerCorrect;
+        return _isAnswerCorrect;
     }
 
     // Challenge-specific logic
@@ -186,6 +193,22 @@ public class GameController
     }
     public int ResetTimer()
     {
+        return _timer.Reset();
+    }
+    public int GetTimeRemaining()
+    {
         return _timer.TimeRemaining;
+    }
+    public int ChallengeTick()
+    {
+        if (_currentDifficulty == Difficulty.Challenge && _currentState == GameState.Playing)
+        {
+            _timer.Tick();
+            if (_timer.TimeRemaining == 0)
+            {
+                EndChallenge();
+            }
+        }
+        return GetTimeRemaining();
     }
 }
