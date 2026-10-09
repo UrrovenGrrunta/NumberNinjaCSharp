@@ -34,18 +34,17 @@ public class GameController
         _currentState = GameState.DifficultySelection;
         return _currentState;
     }
-        public GameState StartGame()
-
+    public GameState StartGame()
+    {
+        GenerateQuestion();
+        if (_currentDifficulty == Difficulty.Challenge)
         {
-            GenerateQuestion();
-            if (_currentDifficulty == Difficulty.Challenge)
-            {
-                ResetTimer();
-                ResetChalange();
+            ResetTimer();
+            ResetChalange();
 
-            }
-            _currentState = GameState.Playing;
-            return _currentState;
+        }
+        _currentState = GameState.Playing;
+        return _currentState;
     }
     public GameState EndGame()
     {
